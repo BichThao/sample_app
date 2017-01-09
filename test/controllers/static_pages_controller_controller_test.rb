@@ -15,5 +15,4 @@ class StaticPagesControllerControllerTest < ActionDispatch::IntegrationTest
     get static_pages_controller_about_url
     assert_response :success
   end
-
 end
