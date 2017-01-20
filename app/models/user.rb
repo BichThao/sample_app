@@ -2,8 +2,8 @@ class User < ApplicationRecord
   attr_accessor :remember_token, :activation_token, :reset_token
   before_create :create_activation_digest
   before_save :downcase_email
-  validates :name, presence: true, length: {maximum: 50}
-  
+  has_many :microposts, dependent: :destroy
+
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   
   validates :name, presence: true, length: {maximum: 50}
@@ -28,6 +28,10 @@ class User < ApplicationRecord
 
   def forget
     update_attributes remember_digest: nil
+  end
+
+  def feed
+    self.microposts.recent_posts
   end
 
   class << self
