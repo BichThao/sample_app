@@ -12,7 +12,8 @@ Rails.application.routes.draw do
   delete "microposts", to: "microposts#destroy"
   
   resources :users
-  resources :account_activations, only: [:edit]
+  resources :account_activations, only: :edit
   resources :password_resets, except: [:show, :destroy]
   resources :microposts, only: [:create, :destroy]
+  resources :relationships, only: [:index, :create, :destroy]
 end

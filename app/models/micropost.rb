@@ -1,6 +1,7 @@
 class Micropost < ApplicationRecord
   belongs_to :user
-  scope :recent_posts, -> {order created_at: :desc}
+  scope :order_time, ->{order created_at: :desc}
+  scope :feed_list, -> user_id{where user_id: user_id}
   mount_uploader :picture, PictureUploader
   validates :user, presence: true
   validates :content, presence: true, length: { maximum:140}

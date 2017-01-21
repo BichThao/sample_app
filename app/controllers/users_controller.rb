@@ -1,14 +1,15 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:index, :edit, :update]
+  before_action :logged_in_user, except: [:new, :create]
   before_action :find_user, except: [:new, :index, :create]
   before_action :admin_user, only: :destroy
 
   def show
-    @microposts = @user.microposts.recent_posts.paginate page: params[:page]
+    relationship @user
+    @microposts = @user.microposts.paginate page: params[:page]
   end
 
   def index
-    @users = User.activated_users.paginate page: params[:page]
+    @users = User.paginate page: params[:page]
   end
 
   def new
@@ -52,7 +53,7 @@ class UsersController < ApplicationController
   private
   def user_params
     params.require(:user).permit :name, :email, :password,
-      :password_confirmation, :picture
+      :password_confirmation
   end
 
   def admin_user
@@ -65,5 +66,9 @@ class UsersController < ApplicationController
       flash[:warning] = "Couldn't find this user. Please try again!"
       redirect_to users_url
     end
+  end
+
+  def relationship user
+    @relationship = current_user.active_relationships.find_by followed_id: user.id
   end
 end

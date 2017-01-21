@@ -1,8 +1,15 @@
 class User < ApplicationRecord
   attr_accessor :remember_token, :activation_token, :reset_token
+  scope :activated_users, -> {where activated: true}
   before_create :create_activation_digest
   before_save :downcase_email
   has_many :microposts, dependent: :destroy
+  has_many :active_relationships, class_name: Relationship.name,
+    foreign_key: "follower_id", dependent: :destroy
+  has_many :passive_relationships, class_name: Relationship.name,
+    foreign_key: "followed_id", dependent: :destroy
+  has_many :following, through: :active_relationships, source: :followed
+  has_many :followers, through: :passive_relationships, source: :follower
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   
@@ -31,7 +38,19 @@ class User < ApplicationRecord
   end
 
   def feed
-    self.microposts.recent_posts
+    Micropost.order_time.feed_list following_ids << id
+  end
+
+  def follow other_user
+    following << other_user
+  end
+
+  def unfollow other_user
+    following.delete other_user
+  end
+
+  def following? other_user
+    following.include? other_user
   end
 
   class << self
